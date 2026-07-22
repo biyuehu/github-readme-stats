@@ -1,1 +1,4 @@
 **/*.js binary
+*.js binary
+*.js linguist-vendored
+**/*.js linguist-vendored
