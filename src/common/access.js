@@ -51,7 +51,7 @@ const guardAccess = ({ res, id, type, colors }) => {
     const result = res.send(
       renderError({
         message: notWhitelistedMsg,
-        secondaryMessage: "Please deploy your own instance",
+        secondaryMessage: "死穷鬼别鸡巴用老子接口，滚去用你自己的",
         renderOptions: {
           ...colors,
           show_repo_link: false,
