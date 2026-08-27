@@ -14,15 +14,13 @@ const BLACKLISTED_MESSAGE = "This username is blacklisted";
  * @param {Object} args The parameters object.
  * @param {any} args.res The response object.
  * @param {string} args.id Resource identifier (username or gist id).
- * @param {"username"|"gist"|"wakatime"} args.type The type of identifier.
+ * @param {"username"|"gist"} args.type The type of identifier.
  * @param {{ title_color?: string, text_color?: string, bg_color?: string, border_color?: string, theme?: string }} args.colors Color options for the error card.
  * @returns {{ isPassed: boolean, result?: any }} The result object indicating success or failure.
  */
 const guardAccess = ({ res, id, type, colors }) => {
-  if (!["username", "gist", "wakatime"].includes(type)) {
-    throw new Error(
-      'Invalid type. Expected "username", "gist", or "wakatime".',
-    );
+  if (!["username", "gist"].includes(type)) {
+    throw new Error('Invalid type. Expected "username" or "gist".');
   }
 
   const currentWhitelist = type === "gist" ? gistWhitelist : whitelist;
@@ -31,10 +29,14 @@ const guardAccess = ({ res, id, type, colors }) => {
       ? NOT_WHITELISTED_GIST_MESSAGE
       : NOT_WHITELISTED_USERNAME_MESSAGE;
 
-  if (Array.isArray(currentWhitelist) && !currentWhitelist.includes(id)) {
+  if (id === undefined) {
+    return { isPassed: true };
+  }
+
+  if (type === "username" && blacklist.includes(id)) {
     const result = res.send(
       renderError({
-        message: notWhitelistedMsg,
+        message: BLACKLISTED_MESSAGE,
         secondaryMessage: "Please deploy your own instance",
         renderOptions: {
           ...colors,
@@ -45,14 +47,10 @@ const guardAccess = ({ res, id, type, colors }) => {
     return { isPassed: false, result };
   }
 
-  if (
-    type === "username" &&
-    currentWhitelist === undefined &&
-    blacklist.includes(id)
-  ) {
+  if (Array.isArray(currentWhitelist) && !currentWhitelist.includes(id)) {
     const result = res.send(
       renderError({
-        message: BLACKLISTED_MESSAGE,
+        message: notWhitelistedMsg,
         secondaryMessage: "Please deploy your own instance",
         renderOptions: {
           ...colors,

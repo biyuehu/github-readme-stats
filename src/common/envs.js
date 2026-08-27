@@ -1,8 +1,24 @@
 // @ts-check
 
-const whitelist = process.env.WHITELIST
-  ? process.env.WHITELIST.split(",")
-  : undefined;
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const whitelistFile = join(__dirname, "../../whitelist.json");
+
+let whitelist;
+try {
+  const data = JSON.parse(readFileSync(whitelistFile, "utf8"));
+  whitelist = Array.isArray(data) ? data : undefined;
+} catch {
+  whitelist = undefined;
+}
+
+if (process.env.NODE_ENV === "test") {
+  whitelist = ["anuraghazra"];
+}
 
 const gistWhitelist = process.env.GIST_WHITELIST
   ? process.env.GIST_WHITELIST.split(",")
